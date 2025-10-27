@@ -1,7 +1,4 @@
 # 🧠 Toy Diffusion Model (2D)
-![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
-![PyTorch](https://img.shields.io/badge/PyTorch-2.x-red)
-![License](https://img.shields.io/badge/License-MIT-green)
 
 *A minimal working example of a diffusion model implemented from scratch with PyTorch.*
 
@@ -10,31 +7,123 @@
 
 ---
 
-一个**最小但工程化**的扩散模型示例：在 2D Swissroll 上训练一个去噪器 (denoiser)，
-学习从 `xσ = x0 + σ·ε` 预测噪声 `ε̂(xσ, σ)`，并可视化**一步去噪**与**训练曲线**。
+## 📘 Overview
+This repository provides a **clean, educational implementation** of a 2D diffusion model trained on a synthetic *Swiss Roll* dataset.  
+It helps students and researchers understand the **core principles of denoising diffusion models** without heavy dependencies.
 
-> 特色：Fail-Fast 冒烟测试、GPU 自检、加权 MSE、余弦学习率、梯度裁剪、Checkpoint、可视化。
-
----
-
-## 🧠 背景与直觉
-在 manifold 假设下，加噪相当于**正交扰动**，去噪等价于**向流形投影的一步梯度下降**。
-本仓库通过 2D 螺旋点集把这件事“可视化地跑通”。
-
-- 训练目标：  
-  给 `xσ, σ` 预测噪声 `ε̂`，最小化 **加权 MSE**  
-  `w(σ)=1/(σ^2+ε0)`，让**小噪声（更接近 x0）更重要**。
-- 一步去噪：`x_denoised = xσ - σ·ε̂(xσ,σ)`。
+### ✨ Key Features
+- Custom noise schedule (`ScheduleLogLinear`)
+- Sigma embedding with sinusoidal encoding
+- Simple **MLP (Multi-Layer Perceptron)** noise predictor
+- **Weighted MSE loss** emphasizing small-noise precision
+- Fail-fast debugging, gradient clipping, and cosine LR scheduler
+- Visualization of denoising direction in 2D
 
 ---
 
-## 🚀 快速开始
+## 🧩 File Structure
+```
+📦 toy_diffusion_2d/
+ ┣ 📜 toy_diffusion_2d.py        # main code
+ ┣ 📜 requirements.txt           # lightweight pip dependencies
+ ┣ 📜 LICENSE                    # MIT license
+ ┣ 📜 README.md                  # this file
+ ┗ 📂 assets/                    # figures for README
+    ┣ 📊 loss_curve.png
+    ┗ 🌀 denoise_step.png
+```
 
-### 1) 安装依赖
+---
+
+## ⚙️ Installation
 ```bash
-# 方式 A：pip
+git clone https://github.com/<yourusername>/toy_diffusion_2d.git
+cd toy_diffusion_2d
 pip install -r requirements.txt
+```
 
-# 方式 B：conda（推荐）
-conda env create -f environment.yml
-conda activate diffusion-toy-2d
+---
+
+## 🚀 Run
+```bash
+python toy_diffusion_2d.py
+```
+
+Expected outputs:
+- Console training logs  
+- `assets/loss_curve.png` (loss curve)  
+- `assets/denoise_step.png` (one-step denoising arrows)
+
+---
+
+## 🧮 Core Components
+
+### 1️⃣ Noise Schedule
+```python
+schedule = ScheduleLogLinear(N=400, sigma_min=0.002, sigma_max=2.0)
+```
+Log-spaced σ values `[0.002, 2.0]` to cover a wide noise range.
+
+### 2️⃣ Model (MLP)
+```python
+model = TimeInputMLP(dim=2, hidden_dims=(128,256,256,256,128))
+```
+Predicts Gaussian noise `ε̂` from noisy inputs `xσ = x0 + σ·ε`.  
+Input to the MLP is the concatenation `[x, embed(σ)]` where `embed(σ) = [sin(0.5·log σ), cos(0.5·log σ)]`.
+
+### 3️⃣ Loss Function
+Weighted MSE:
+```text
+L = E[ 1 / (σ^2 + ε0) * || ε̂ - ε ||^2 ]
+```
+Emphasizes **small-σ (low-noise)** cases where denoising precision matters most.
+
+---
+
+## 📈 Visualization
+- **Loss curve** demonstrates convergence.  
+- **Denoising arrows** show vectors from noisy points toward their one-step denoised estimates on the spiral manifold.
+
+---
+
+## 💻 Environment
+
+| Dependency | Minimum Version |
+|-----------:|:----------------|
+| Python     | 3.10            |
+| PyTorch    | 2.1.0           |
+| NumPy      | 1.24            |
+| Matplotlib | 3.7             |
+
+Install via:
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 📜 License
+Released under the **MIT License**.  
+You may use, modify, and distribute this code with attribution.
+
+---
+
+## 👨‍🎓 Author
+**Weineng Zhu**  
+Biostatistics PhD Student at City University of Hong Kong
+
+---
+
+## 🧩 Citation
+```bibtex
+@misc{zhu2025toy_diffusion_2d,
+  author       = {Weineng Zhu},
+  title        = {Toy Diffusion Model (2D)},
+  year         = {2025},
+  howpublished = {\url{https://github.com/<yourusername>/toy_diffusion_2d}}
+}
+```
+
+---
+
+*Last updated: 2025-10 — maintained by Weineng Zhu*

@@ -7,6 +7,9 @@
 
 ![Training Loss Curve](assets/loss_curve.png)
 ![Denoising Step](assets/denoise_step.png)
+
+---
+
 一个**最小但工程化**的扩散模型示例：在 2D Swissroll 上训练一个去噪器 (denoiser)，
 学习从 `xσ = x0 + σ·ε` 预测噪声 `ε̂(xσ, σ)`，并可视化**一步去噪**与**训练曲线**。
 
